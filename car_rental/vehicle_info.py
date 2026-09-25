@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from enum import Enum
 from typing import Optional, Dict
+from .database import DB
 
 
 class StrValueEnum(str, Enum):
@@ -148,7 +149,9 @@ class VehicleBuilder:
     def build(self) -> Vehicle:
         ...
 
-        # TODO: restriction of variables ------------------------------
+        # TODO: restriction of variables
+
+        # TODO: send vehicle to database to save - DB.save()
 
         return Vehicle(
             self.type,

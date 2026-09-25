@@ -20,5 +20,13 @@ class DB:
         pass
 
     def load(self, parameters):
-        # TODO: load vehicles from database with stated parameters
+        # TODO: load new vehicles from database with stated parameters
+        pass
+
+    def update(self, table: str, parameters):
+        # TODO: update a given rent or vehicle info
+        pass
+
+    def delete(self, table: str, parameters):
+        # TODO: mark a given rent or vehicle as removed
         pass

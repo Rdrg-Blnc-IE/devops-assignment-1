@@ -1,10 +1,11 @@
 from car_rental.vehicle_info import VehicleBuilder
 
-car1 = (
-        VehicleBuilder()
-        .with_fuel('petrol')
-        .with_type('car')
-        )
+def main():
 
-print(car1.fuel)
-print(car1.type)
+    # TODO: execute html webapp
+
+    # TODO: connect the different services together
+    pass
+
+if __name__ == "__main__":
+    main()
