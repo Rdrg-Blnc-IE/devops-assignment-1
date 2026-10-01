@@ -74,6 +74,7 @@ class VehicleBuilder:
         self.brand = None
         self.model = None
         self.plate = None
+        self.location = None
         self.fuel = None
         self.transmission = None
         self.seat_num = None
@@ -84,7 +85,6 @@ class VehicleBuilder:
         self.status = None
         self.reg_num = None
         self.category = None
-        self.features = {}
         self.color = None
 
     def with_type(self, type_: str):
@@ -101,6 +101,10 @@ class VehicleBuilder:
 
     def with_plate(self, plate: str):
         self.plate = plate
+        return self
+
+    def with_location(self, location: Location):
+        self.location = location
         return self
 
     def with_fuel(self, fuel: str):
@@ -141,12 +145,6 @@ class VehicleBuilder:
 
     def with_category(self, category: str):
         self.category = RentalTier(category)
-        return self
-
-    def with_features(self, **kwargs):
-        self.features = {
-            **kwargs
-        }
         return self
 
     def with_color(self, color):
