@@ -17,6 +17,15 @@ class VehicleType(StrValueEnum):
     suv = 'suv'
     mini = 'mini' # 2 seat number restriction
 
+class Location(StrValueEnum):
+    madrid = 'madrid'
+    barcelona = 'barcelona'
+    valencia = 'valencia'
+    sevilla ='sevilla'
+    malaga = 'malaga'
+    tenerife = 'tenerife'
+    mallorca = 'mallorrca'
+
 
 class FuelType(StrValueEnum):
     petrol = 'petrol'
@@ -47,6 +56,7 @@ class Vehicle:
     brand: str  # Toyota
     model: str  # Corolla
     plate: str  # NRS 3242
+    location: Location # Location.madrid
     fuel: FuelType  # FuelType.hybrid
     transmission: TransmissionType  # TransmissionType.automatic
     seat_num: int  # 5
@@ -55,9 +65,9 @@ class Vehicle:
     km: int  # 18500
     daily_rate: float  # 39.99
     status: VehicleStatus # VehicleStatus.active
-    id_num: str  # 1HGCM82633A004352
+    id_num: str  # 1HGM82633A004352
     category: RentalTier  # RentalTier.economy
-    features: Dict[str, str] = field(default_factory=list)  # ['GPS', 'Bluetooth', 'child seat']
+    features: Dict[str] = field(default_factory=list)  # ['GPS', 'Bluetooth', 'child seat']
     color: Optional[str] = None  # Silver
 
 
