@@ -384,6 +384,33 @@ def assign_type(seat_num: int, model: str) -> str:
 
 df["type"] = df.apply(lambda row: assign_type(row["seat_num"], row["model"]), axis=1)
 
+COLUMN_ORDER = [
+    "reg_num",
+    "type",
+    "brand",
+    "model",
+    "category",
+    "daily_rate",
+    "seat_num",
+    "plate",
+    "color",
+    "fuel",
+    "transmission",
+    "km",
+    "status",
+    "location",
+    "manufacture_date",
+    "registration_date",
+]
+
+df = df[COLUMN_ORDER]
 
 show_value_counts()
 print(df.head())
+
+import sqlite3 as sql
+
+DB_PATH = PROJECT_ROOT / "src" / "vehicles.db"
+conn = sql.connect(DB_PATH)
+df.to_sql("vehicles", conn, if_exists="replace", index=False)
+conn.close()
