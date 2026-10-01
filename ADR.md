@@ -1,4 +1,4 @@
-## [1]. <Title>
+## [1]. Dataset <Title>
 - Date: 2026-10-01
 - Status: Decided
 - Context: The need for a sufficient dataset. The user experience will improve with a large dataset.

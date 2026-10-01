@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import date
 from enum import Enum
-from typing import Optional, Dict
+from typing import Optional
 from .database import DB
 
 
@@ -10,12 +10,10 @@ class StrValueEnum(str, Enum):
         return self.value
 
 class VehicleType(StrValueEnum):
-    car = 'car'
-    truck = 'truck'
-    motorbike = 'motorbike'
+    car = 'car' # 4, 5 seats restriction
     van = 'van'
     suv = 'suv'
-    mini = 'mini' # 2 seat number restriction
+    mini = 'mini' # 2 seat restriction
 
 class Location(StrValueEnum):
     madrid = 'madrid'
@@ -55,19 +53,18 @@ class Vehicle:
     type: VehicleType  # VehicleType.car
     brand: str  # Toyota
     model: str  # Corolla
-    plate: str  # NRS 3242
+    plate: str  # 3242 NRS
     location: Location # Location.madrid
     fuel: FuelType  # FuelType.hybrid
     transmission: TransmissionType  # TransmissionType.automatic
     seat_num: int  # 5
     manufacture_date: date  # 2022, 3, 1 - when the vehicle was built
-    registration_date: date  # 2022, 6, 15 - when it joined the company
+    registration_date: date  # 2022, 6, 15 - when it joined the company, can't exceed 5 years after manufacture
     km: int  # 18500
     daily_rate: float  # 39.99
     status: VehicleStatus # VehicleStatus.active
-    id_num: str  # 1HGM82633A004352
+    reg_num: str  # registration number 1HGM82633A004352
     category: RentalTier  # RentalTier.economy
-    features: Dict[str] = field(default_factory=list)  # ['GPS', 'Bluetooth', 'child seat']
     color: Optional[str] = None  # Silver
 
 
@@ -85,7 +82,7 @@ class VehicleBuilder:
         self.km = None
         self.daily_rate = None
         self.status = None
-        self.id_num = None
+        self.reg_num = None
         self.category = None
         self.features = {}
         self.color = None
@@ -138,8 +135,8 @@ class VehicleBuilder:
         self.status = VehicleStatus(status)
         return self
 
-    def with_id_num(self, id_num: str):
-        self.id_num = id_num
+    def with_reg_num(self, reg_num: str):
+        self.reg_num = reg_num
         return self
 
     def with_category(self, category: str):
@@ -176,8 +173,7 @@ class VehicleBuilder:
             self.km,
             self.daily_rate,
             self.status,
-            self.id_num,
+            self.reg_num,
             self.category,
-            self.features,
             self.color
         )
