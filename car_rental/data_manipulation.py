@@ -20,7 +20,7 @@ df = pd.read_csv(CSV_PATH)
 pd.set_option("display.max_columns", None)
 print(df.head())
 
-def show_value_counts(max_unique: int = 30) -> None:
+def show_value_counts(df, max_unique: int = 30) -> None:
     for col in df.columns:
         n_unique = df[col].nunique(dropna=False)
         n_missing = df[col].isna().sum()
@@ -405,12 +405,167 @@ COLUMN_ORDER = [
 
 df = df[COLUMN_ORDER]
 
-show_value_counts()
+show_value_counts(df)
 print(df.head())
+
+N_RENTALS = 150
+N_CUSTOMERS = 100
+
+STATUS_WEIGHTS = {
+    "returned": 0.55,
+    "active": 0.10,
+    "confirmed": 0.10,
+    "pending": 0.10,
+    "canceled": 0.15,
+}
+
+
+def ranges_overlap(start_a, end_a, start_b, end_b) -> bool:
+    return start_a < end_b and start_b < end_a
+
+
+def random_rental_dates(rng: random.Random, status: str) -> tuple[date, date]:
+    """Pick a start/end date pair consistent with the status:
+    returned/canceled -> in the past, active -> spans today,
+    confirmed/pending -> in the future.
+    """
+    today = date.today()
+    length = rng.randint(2, 14)  # rental length in days
+
+    if status in ("returned", "canceled"):
+        start = today - timedelta(days=rng.randint(10, 730))
+    elif status == "active":
+        start = today - timedelta(days=rng.randint(0, length - 1))
+    else:  # confirmed, pending
+        start = today + timedelta(days=rng.randint(1, 180))
+
+    end = start + timedelta(days=length)
+    return start, end
+
+
+def generate_rentals_df(vehicles_df, n_rentals=N_RENTALS, n_customers=N_CUSTOMERS, seed=142):
+    rng = random.Random(seed)
+
+    reg_nums = vehicles_df["reg_num"].tolist()
+    rate_lookup = dict(zip(vehicles_df["reg_num"], vehicles_df["daily_rate"]))
+
+    customer_ids = list(range(1, n_customers + 1))
+
+    # build a customer-draw queue that guarantees every customer appears
+    # at least once in the first n_customers rentals, then fills the
+    # remainder with uniform random picks
+    customer_queue = customer_ids.copy()
+    rng.shuffle(customer_queue)
+    remaining_slots = n_rentals - n_customers
+    if remaining_slots > 0:
+        customer_queue += [rng.choice(customer_ids) for _ in range(remaining_slots)]
+    rng.shuffle(customer_queue)
+
+    vehicle_bookings: dict[str, list[tuple[date, date]]] = {}
+    customer_bookings: dict[int, list[tuple[date, date]]] = {}
+
+    rows = []
+    queue_idx = 0
+    attempts = 0
+    max_attempts = n_rentals * 400  # safety net against infinite loops
+
+    while len(rows) < n_rentals and attempts < max_attempts and queue_idx < len(customer_queue):
+        attempts += 1
+
+        customer_id = customer_queue[queue_idx]
+        reg_num = rng.choice(reg_nums)
+        status = rng.choices(list(STATUS_WEIGHTS), weights=list(STATUS_WEIGHTS.values()), k=1)[0]
+        start_date, end_date = random_rental_dates(rng, status)
+
+        car_conflicts = any(
+            ranges_overlap(start_date, end_date, s, e)
+            for s, e in vehicle_bookings.get(reg_num, [])
+        )
+        customer_conflicts = any(
+            ranges_overlap(start_date, end_date, s, e)
+            for s, e in customer_bookings.get(customer_id, [])
+        )
+
+        if car_conflicts or customer_conflicts:
+            continue  # retry same customer with a different car/dates, don't advance queue
+
+        daily_rate = rate_lookup[reg_num]
+        days = (end_date - start_date).days
+        total_price = round(days * daily_rate, 2)
+
+        rows.append({
+            "customer_id": customer_id,
+            "car_reg_num": reg_num,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "total_price": total_price,
+            "status": status,
+        })
+
+        vehicle_bookings.setdefault(reg_num, []).append((start_date, end_date))
+        customer_bookings.setdefault(customer_id, []).append((start_date, end_date))
+
+        queue_idx += 1  # only advance once a row was successfully placed
+
+    if len(rows) < n_rentals:
+        print(f"Warning: only generated {len(rows)}/{n_rentals} rentals "
+              f"(ran out of queue slots or non-overlapping combinations)")
+
+    return pd.DataFrame(rows)
+
+
+rentals_df = generate_rentals_df(df)
+
+show_value_counts(rentals_df)
+print(rentals_df.sort_values(by='customer_id'))
+
 
 import sqlite3 as sql
 
 DB_PATH = PROJECT_ROOT / "src" / "vehicles.db"
 conn = sql.connect(DB_PATH)
-df.to_sql("vehicles", conn, if_exists="replace", index=False)
+conn.execute("PRAGMA foreign_keys = ON")
+
+conn.execute("DROP TABLE IF EXISTS rentals")
+conn.execute("DROP TABLE IF EXISTS vehicles")
+
+conn.execute("""
+    CREATE TABLE vehicles (
+        reg_num TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        brand TEXT NOT NULL,
+        model TEXT NOT NULL,
+        category TEXT NOT NULL,
+        daily_rate REAL NOT NULL,
+        seat_num INTEGER NOT NULL,
+        plate TEXT NOT NULL UNIQUE,
+        color TEXT,
+        fuel TEXT NOT NULL,
+        transmission TEXT NOT NULL,
+        km INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        location TEXT NOT NULL,
+        manufacture_date TEXT NOT NULL,
+        registration_date TEXT NOT NULL
+    )
+""")
+
+df.to_sql("vehicles", conn, if_exists="append", index=False)
+
+conn.execute("""
+    CREATE TABLE rentals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_id INTEGER NOT NULL,
+        car_reg_num TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        total_price REAL NOT NULL,
+        status TEXT NOT NULL,
+        FOREIGN KEY (car_reg_num) REFERENCES vehicles (reg_num)
+    )
+""")
+
+rentals_df.to_sql("rentals", conn, if_exists="append", index=False)
+
+conn.commit()
 conn.close()
