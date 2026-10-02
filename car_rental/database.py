@@ -1,3 +1,6 @@
+import sqlite3
+from pathlib import Path
+from typing import Any, Optional
 
 
 def singleton(cls):
@@ -11,22 +14,70 @@ def singleton(cls):
 
 @singleton
 class DB:
-    def __init__(self, a):
-        # TODO: connection to database
-        self.db = 'DATABASE'
+    def __init__(self, db_path: Path):
+        self.db_path = db_path
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        self.conn.row_factory = sqlite3.Row  # rows behave like dicts
+        self.conn.execute("PRAGMA foreign_keys = ON")
 
-    def save(self, table: str, data):
-        # TODO: save to database, in different tables
-        pass
+    def _save(self, table: str, data: dict[str, Any]) -> None:
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join("?" for _ in data)
+        values = tuple(data.values())
+        self.conn.execute(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})", values)
+        self.conn.commit()
 
-    def load(self, parameters):
-        # TODO: load new vehicles from database with stated parameters
-        pass
+    def _load(self, table: str, parameters: Optional[dict[str, Any]] = None) -> list[dict]:
+        query = f"SELECT * FROM {table}"
+        values = ()
 
-    def update(self, table: str, parameters):
-        # TODO: update a given rent or vehicle info
-        pass
+        if parameters:
+            conditions = " AND ".join(f"{key} = ?" for key in parameters)
+            query += f" WHERE {conditions}"
+            values = tuple(parameters.values())
 
-    def delete(self, table: str, parameters):
-        # TODO: mark a given rent or vehicle as removed
-        pass
+        cur = self.conn.execute(query, values)
+        return [dict(row) for row in cur.fetchall()]
+
+    def _update(self, table: str, key_value, parameters: dict[str, Any], key_column: str) -> None:
+        if not parameters:
+            raise ValueError("update requires at least one field to change")
+
+        assignments = ", ".join(f"{key} = ?" for key in parameters)
+        values = tuple(parameters.values()) + (key_value,)
+
+        self.conn.execute(f"UPDATE {table} SET {assignments} WHERE {key_column} = ?", values)
+        self.conn.commit()
+
+    # Vehicles — by reg_num
+
+    def save_vehicle(self, data: dict[str, Any]) -> None:
+        self._save("vehicles", data)
+
+    def load_vehicles(self, parameters: Optional[dict[str, Any]] = None) -> list[dict]:
+        return self._load("vehicles", parameters)
+
+    def update_vehicle(self, reg_num: str, parameters: dict[str, Any]) -> None:
+        self._update("vehicles", reg_num, parameters, key_column="reg_num")
+
+    def delete_vehicle(self, reg_num: str) -> None:
+        # soft-delete: mark the vehicle as retired rather than deleting the row
+        self.update_vehicle(reg_num, {"status": "retired"})
+
+    # Reservations — by id
+
+    def save_reservation(self, data: dict[str, Any]) -> None:
+        self._save("reservations", data)
+
+    def load_reservations(self, parameters: Optional[dict[str, Any]] = None) -> list[dict]:
+        return self._load("reservations", parameters)
+
+    def update_reservation(self, reservation_id: int, parameters: dict[str, Any]) -> None:
+        self._update("reservations", reservation_id, parameters, key_column="id")
+
+    def delete_reservation(self, reservation_id: int) -> None:
+        # soft-delete: mark the reservation as canceled rather than deleting the row
+        self.update_reservation(reservation_id, {"status": "canceled"})
+
+    def close(self) -> None:
+        self.conn.close()
