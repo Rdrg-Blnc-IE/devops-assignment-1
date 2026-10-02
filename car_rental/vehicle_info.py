@@ -163,6 +163,7 @@ class VehicleBuilder:
             self.brand,
             self.model,
             self.plate,
+            self.location,
             self.fuel,
             self.transmission,
             self.seat_num,
