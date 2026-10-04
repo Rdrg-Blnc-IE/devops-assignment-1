@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from enum import Enum
 from typing import Optional
-from .database import DB
+from .database import db_instance as db
 
 
 class StrValueEnum(str, Enum):
@@ -68,11 +68,11 @@ class Vehicle:
     color: Optional[str] = None  # Silver
 
 def save(vehicle):
-        DB.save_vehicle(vehicle)
+        db.save_vehicle(vehicle)
 
 def update(reg_num: str, parameters: dict):
         if reg_num:
-            DB.update_vehicle(reg_num, parameters)
+            db.update_vehicle(reg_num, parameters)
         else:
             raise ValueError("No reg_num provided")
 

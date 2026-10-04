@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import date
-from .database import DB
+from .database import db_instance as db
 from .vehicle_info import StrValueEnum
 
 
@@ -22,11 +22,11 @@ class Rental:
     status: RentalStatus  # RentalStatus.pending
 
 def save(rental):
-        DB.save_reservation(rental)
+        db.save_reservation(rental)
 
 def update(rental_id: int, parameters: dict):
         if rental_id:
-            DB.update_reservation(rental_id, parameters)
+            db.update_reservation(rental_id, parameters)
         else:
             raise ValueError("No rental_id provided")
 
@@ -75,7 +75,7 @@ class RentalBuilder:
         if self.start_date < date.today():
             raise ValueError("start_date cannot be in the past")
 
-        cars = DB.load_vehicles(parameters = {"reg_num": self.car_reg_num})
+        cars = db.load_vehicles(parameters = {"reg_num": self.car_reg_num})
         if not cars:
             raise ValueError(f"No vehicle found with reg_num '{self.car_reg_num}'")
 

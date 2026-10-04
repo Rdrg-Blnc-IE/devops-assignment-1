@@ -81,3 +81,8 @@ class DB:
 
     def close(self) -> None:
         self.conn.close()
+
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DB_PATH = PROJECT_ROOT / "src" / "vehicles.db"
+db_instance = DB(DB_PATH)
