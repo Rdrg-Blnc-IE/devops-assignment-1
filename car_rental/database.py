@@ -54,7 +54,7 @@ class DB:
     def save_vehicle(self, data: dict[str, Any]) -> None:
         self._save("vehicles", data)
 
-    def load_vehicles(self, parameters: Optional[dict[str, Any]] = None) -> list[dict]:
+    def load_vehicles(self, parameters = None) -> list[dict]:
         return self._load("vehicles", parameters)
 
     def update_vehicle(self, reg_num: str, parameters: dict[str, Any]) -> None:

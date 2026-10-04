@@ -25,7 +25,10 @@ class Rental:
         DB.save_reservation(rental)
 
     def update(self, rental_id: int, parameters: dict):
-        DB.update_reservation(rental_id, parameters)
+        if rental_id:
+            DB.update_reservation(rental_id, parameters)
+        else:
+            raise ValueError("No rental_id provided")
 
 
 class RentalBuilder:
@@ -72,7 +75,7 @@ class RentalBuilder:
         if self.start_date < date.today():
             raise ValueError("start_date cannot be in the past")
 
-        cars = DB.load_vehicles({"reg_num": self.car_reg_num})
+        cars = DB.load_vehicles(parameters = {"reg_num": self.car_reg_num})
         if not cars:
             raise ValueError(f"No vehicle found with reg_num '{self.car_reg_num}'")
 
@@ -92,5 +95,5 @@ class RentalBuilder:
             status=self.status or RentalStatus.pending,
         )
 
-        Rental.save(r)
+        r.save()
         return r
