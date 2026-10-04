@@ -519,6 +519,70 @@ rentals_df = generate_rentals_df(df)
 show_value_counts(rentals_df)
 print(rentals_df.sort_values(by='customer_id'))
 
+first_names = [
+    "James", "Olivia", "Liam", "Emma", "Noah", "Ava", "Ethan", "Sophia",
+    "Lucas", "Mia", "Mason", "Isabella", "Henry", "Amelia", "Leo", "Harper",
+    "Daniel", "Evelyn", "Jack", "Ella", "Alexander", "Grace", "William",
+    "Chloe", "Benjamin", "Lily", "Michael", "Zoe", "Samuel", "Nora",
+    "David", "Hannah", "Aria", "Thomas", "Scarlett", "Charlie",
+    "Victoria", "Matthew", "Riley", "Oliver", "Layla", "Jack", "Sofia",
+    "Sebastian", "Camila", "Luna", "Owen", "Penelope"
+]
+
+last_names = [
+    "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller",
+    "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez",
+    "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
+    "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark",
+    "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Allen", "King",
+    "Scott", "Torres", "Hill", "Flores", "Green",
+    "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+    "Carter", "Roberts"
+]
+
+def generate_customers_df(n_customers=N_CUSTOMERS, seed=142):
+    rng = random.Random(seed)
+
+    # weighted location assignment, matching LOCATION_TARGETS used for vehicles
+    targets = {k: round(v * n_customers) for k, v in LOCATION_TARGETS.items()}
+    diff = n_customers - sum(targets.values())
+    targets["mallorca"] += diff  # absorb rounding drift, same pattern as reassign_location
+
+    location_pool = []
+    for city, count in targets.items():
+        location_pool.extend([city] * count)
+    rng.shuffle(location_pool)
+
+    rows = []
+    used_emails = set()
+
+    for i, customer_id in enumerate(range(1, n_customers + 1)):
+        first = rng.choice(first_names)
+        last = rng.choice(last_names)
+
+        base_email = f"{first.lower()}.{last.lower()}@example.com"
+        email = base_email
+        suffix = 1
+        while email in used_emails:
+            email = f"{first.lower()}.{last.lower()}{suffix}@example.com"
+            suffix += 1
+        used_emails.add(email)
+
+        rows.append({
+            "id": customer_id,
+            "name": first,
+            "surname": last,
+            "email": email,
+            "location": location_pool[i],
+        })
+
+    return pd.DataFrame(rows)
+
+
+customers_df = generate_customers_df()
+show_value_counts(customers_df)
+print(customers_df.head())
+
 
 import sqlite3 as sql
 
@@ -553,6 +617,18 @@ conn.execute("""
 df.to_sql("vehicles", conn, if_exists="append", index=False)
 
 conn.execute("""
+    CREATE TABLE customers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        surname TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        location TEXT NOT NULL
+    )
+""")
+
+customers_df.to_sql("customers", conn, if_exists="append", index=False)
+
+conn.execute("""
     CREATE TABLE rentals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         customer_id INTEGER NOT NULL,
@@ -561,7 +637,8 @@ conn.execute("""
         end_date TEXT NOT NULL,
         total_price REAL NOT NULL,
         status TEXT NOT NULL,
-        FOREIGN KEY (car_reg_num) REFERENCES vehicles (reg_num)
+        FOREIGN KEY (car_reg_num) REFERENCES vehicles (reg_num),
+        FOREIGN KEY (customer_id) REFERENCES customers (id)
     )
 """)
 
