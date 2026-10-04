@@ -24,18 +24,18 @@
 - Alternatives considered: adding a separate autoincrement id to vehicles - rejected as redundant since reg_num is already unique.
 - Consequences: Simple, readable joins, but reg_num can't be changed later without updating a primary key.
 
-## [4]. Testing approach: business logic first, routes untested
+## [4]. Testing approach: business logic and routes
 - Date: 02-10-2026
 - Status: Decided
-- Context: Limited time meant choosing where to focus testing toward the 70% bar.
-- Decision: Prioritized the builder validation rules and the transport routing/queue logic; tested the DB layer against a real temporary SQLite file. Flask routes were left untested.
-- Alternatives considered: mocking the database entirely - rejected for the DB layer's own tests, since a fake store could pass even with broken SQL.
+- Context: Around 80% of methods are tested.
+- Decision: Prioritized the rental builder validation rules and the transport logic. Tested the DB layer against a real temporary SQLite file. Vehicle builder isn't tested as it contains same logic as rental, but it will be used a lot less often (rentals are created more often than new vehicles).
+- Alternatives considered: Testing all files, including routing and template - rejected as it would take a lot of time, and it is updated less frequently, so new bugs happen less often.
 - Consequences: Core logic is well covered, but a routing or template bug could still slip through untested.
 
-## [5]. Deliberately not built: the enterprise web UI
+## [5]. Deliberately not built: password-based login
 - Date: 04-10-2026
 - Status: Decided
-- Context: Not enough time to finish both the customer and staff sides of the app to the same standard.
-- Decision: Left the enterprise side as a placeholder page and focused on finishing the customer flow (login, dashboard, rent, view rental) completely.
-- Alternatives considered: building a thin version of every enterprise screen - rejected, since it would leave everything half-working instead of one side fully working.
-- Consequences: Staff have no UI yet to manage the Vehicle, but the customer flow is solid and demo-ready.
+- Context: Customers needed a way to access their own rentals, but building real authentication was a disproportionate amount of work for this assignment's scope.
+- Decision: Customers log in by inputting their id.
+- Alternatives considered: Full authentication with hashed passwords - rejected as unnecessary complexity for a local, single-user-at-a-time demo app.
+- Consequences: Anyone can act as any customer, so this is not production-safe, but it kept the customer flow simple to build, test, and demo within the time available.
