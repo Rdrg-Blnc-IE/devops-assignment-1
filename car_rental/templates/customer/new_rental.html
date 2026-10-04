@@ -1,10 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Rent a Vehicle — Ruta7{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--customer" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 650px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <a href="{{ url_for('customer.dashboard') }}" style="display: inline-block; margin-bottom: 1rem; color: var(--customer-ink);">← Back to Dashboard</a>
+
+    <div style="background: rgba(255,255,255,0.7); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
+      <h1 style="color: var(--customer-accent); margin-top: 0; margin-bottom: 0.5rem;">Rent a Vehicle</h1>
+      <p style="margin-bottom: 1.5rem;">Choose an available vehicle and set your rental dates.</p>
+
+      <form method="POST" action="{{ url_for('customer.new_rental') }}" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        
+        <div>
+          <label for="vehicle_id" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Select Vehicle</label>
+          <select id="vehicle_id" name="vehicle_id" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; background: white;">
+            <option value="" disabled selected>Choose a vehicle...</option>
+            {% if available_vehicles %}
+              {% for vehicle in available_vehicles %}
+                <option value="{{ vehicle.id }}">
+                  {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.location or 'Main Branch' }}) - ${{ vehicle.daily_rate }}/day
+                </option>
+              {% endfor %}
+            {% else %}
+              <option value="" disabled>No vehicles currently available</option>
+            {% endif %}
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <label for="start_date" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Start Date</label>
+            <input type="date" id="start_date" name="start_date" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+          </div>
+          <div>
+            <label for="end_date" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">End Date</label>
+            <input type="date" id="end_date" name="end_date" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+          </div>
+        </div>
+
+        <div>
+          <label for="pickup_location" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Pickup Location</label>
+          <input type="text" id="pickup_location" name="pickup_location" placeholder="e.g. Airport Terminal 1 / City Center" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+        </div>
+
+        <button type="submit" style="background: var(--customer-accent); color: white; padding: 0.85rem; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s;">
+          Confirm & Reserve Vehicle
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

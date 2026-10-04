@@ -4,6 +4,7 @@ from .config import Config
 
 def create_app():
     app = Flask(__name__)
+    app.secret_key = 'vehicles-app'
     app.config.from_object(Config)
 
     from .routes.customer import customer_bp

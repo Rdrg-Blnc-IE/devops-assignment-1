@@ -1,10 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Dashboard — Ruta7 Customer{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--customer" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 900px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1 style="color: var(--customer-accent);">Welcome Back!</h1>
+        <p>Customer ID: <strong>{{ current_user_id or customer.id if customer else 'CUST-1001' }}</strong></p>
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <a href="{{ url_for('customer.new_rental') }}" style="background: var(--customer-accent); color: white; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; text-decoration: none;">+ Rent a Vehicle</a>
+        <a href="{{ url_for('customer.logout') if 'logout' in url_for.__code__.co_varnames else url_for('index') }}" style="color: var(--customer-ink); opacity: 0.8; text-decoration: underline;">Logout</a>
+      </div>
+    </div>
+
+    <section style="background: rgba(255,255,255,0.6); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+      <h2 style="margin-top: 0; font-size: 1.4rem; color: var(--customer-accent);">Your Rentals</h2>
+
+      {% if rentals %}
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-family: var(--font-ui);">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--customer-accent-soft); text-align: left;">
+                <th style="padding: 0.75rem;">Rental ID</th>
+                <th style="padding: 0.75rem;">Vehicle</th>
+                <th style="padding: 0.75rem;">Start Date</th>
+                <th style="padding: 0.75rem;">End Date</th>
+                <th style="padding: 0.75rem;">Status</th>
+                <th style="padding: 0.75rem; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rental in rentals %}
+                <tr style="border-bottom: 1px solid rgba(0,0,0,0.08);">
+                  <td style="padding: 0.75rem; font-weight: 600;">{{ rental.id }}</td>
+                  <td style="padding: 0.75rem;">{{ rental.vehicle_name or rental.vehicle_id }}</td>
+                  <td style="padding: 0.75rem;">{{ rental.start_date }}</td>
+                  <td style="padding: 0.75rem;">{{ rental.end_date or 'Active' }}</td>
+                  <td style="padding: 0.75rem;">
+                    <span style="padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.85rem; background: {{ '#d4edda' if rental.status == 'active' else '#e2e3e5' }}; color: {{ '#155724' if rental.status == 'active' else '#383d41' }};">
+                      {{ rental.status|capitalize }}
+                    </span>
+                  </td>
+                  <td style="padding: 0.75rem; text-align: right;">
+                    <a href="{{ url_for('customer.rental_detail', rental_id=rental.id) }}" style="color: var(--customer-accent); font-weight: 600;">Manage / Update →</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p style="margin-top: 1rem;">No active or previous rentals found. Ready to hit the road?</p>
+      {% endif %}
+    </section>
+
+  </div>
+</main>
+{% endblock %}
