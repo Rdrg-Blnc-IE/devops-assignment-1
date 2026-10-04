@@ -89,7 +89,7 @@ class RentalBuilder:
             start_date=self.start_date,
             end_date=self.end_date,
             total_price=self.total_price,
-            status=self.status,
+            status=self.status or RentalStatus.pending,
         )
 
         Rental.save(r)
