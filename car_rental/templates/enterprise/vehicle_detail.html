@@ -1,10 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Manage {{ vehicle.brand if vehicle else 'Vehicle' }} — Enterprise{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--enterprise" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 800px; width: 100%; margin: 0 auto; text-align: left;">
+
+    <a href="{{ url_for('enterprise.vehicle_list') }}" style="color: var(--enterprise-accent-soft); display: inline-block; margin-bottom: 1rem;">← Back to Directory</a>
+
+    {% if vehicle %}
+    <div style="background: rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1);">
+      <h1 style="color: var(--enterprise-accent); margin-top: 0;">{{ vehicle.brand }} {{ vehicle.model }}</h1>
+      <p style="opacity: 0.7; font-family: monospace;">Registration Number (Primary Key): {{ vehicle.reg_num }}</p>
+
+      <form method="POST" action="{{ url_for('enterprise.vehicle_detail', reg_num=vehicle.reg_num) }}" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+
+        <!-- Editable Parameters -->
+        <div style="background: rgba(232,163,61,0.08); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(232,163,61,0.2);">
+          <h3 style="margin-top: 0; color: var(--enterprise-accent);">Editable Properties</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Category Tier</label>
+              <select name="category" style="width: 100%; padding: 0.75rem; border-radius: 8px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+                {% for cat in categories %}
+                  <option value="{{ cat }}" {% if vehicle.category == cat %}selected{% endif %}>{{ cat|capitalize }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Daily Rate ($)</label>
+              <input type="number" step="0.01" name="daily_rate" value="{{ vehicle.daily_rate }}" required style="width: 100%; padding: 0.75rem; border-radius: 8px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+            </div>
+
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Status</label>
+              <select name="status" style="width: 100%; padding: 0.75rem; border-radius: 8px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+                {% for st in statuses %}
+                  <option value="{{ st }}" {% if vehicle.status == st %}selected{% endif %}>{{ st|capitalize }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Readonly Fields View -->
+        <h3 style="margin-bottom: 0.5rem;">Fixed Database Fields</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; opacity: 0.85; font-size: 0.9rem;">
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Location (Transport Only)</label>
+            <input type="text" value="{{ vehicle.location|capitalize }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">License Plate</label>
+            <input type="text" value="{{ vehicle.plate }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Body Type</label>
+            <input type="text" value="{{ vehicle.type|capitalize }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Color</label>
+            <input type="text" value="{{ vehicle.color or 'N/A' }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Fuel Type</label>
+            <input type="text" value="{{ vehicle.fuel|capitalize }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Transmission</label>
+            <input type="text" value="{{ vehicle.transmission|capitalize }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Seats</label>
+            <input type="text" value="{{ vehicle.seat_num }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Odometer (KM)</label>
+            <input type="text" value="{{ vehicle.km }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Manufacture Date</label>
+            <input type="text" value="{{ vehicle.manufacture_date }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; opacity: 0.6;">Registration Date</label>
+            <input type="text" value="{{ vehicle.registration_date }}" disabled style="width: 100%; padding: 0.5rem; border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+          </div>
+
+        </div>
+
+        <button type="submit" style="background: var(--enterprise-accent); color: var(--enterprise-bg); padding: 0.85rem; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 1rem;">
+          Save Editable Changes
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+  </div>
+</main>
+{% endblock %}

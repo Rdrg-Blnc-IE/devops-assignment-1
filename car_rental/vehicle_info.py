@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, asdict
 from datetime import date
 from enum import Enum
 from typing import Optional
@@ -22,7 +22,7 @@ class Location(StrValueEnum):
     sevilla ='sevilla'
     malaga = 'malaga'
     tenerife = 'tenerife'
-    mallorca = 'mallorrca'
+    mallorca = 'mallorca'
 
 
 class FuelType(StrValueEnum):
@@ -67,8 +67,14 @@ class Vehicle:
     category: RentalTier  # RentalTier.economy
     color: Optional[str] = None  # Silver
 
-def save(vehicle):
-        db.save_vehicle(vehicle)
+def save(vehicle: Vehicle):
+    data = asdict(vehicle)
+    for k, val in data.items():
+        if hasattr(val, 'value'):
+            data[k] = val.value
+        elif isinstance(val, date):
+            data[k] = val.isoformat()
+    db.save_vehicle(data)
 
 def update(reg_num: str, parameters: dict):
         if reg_num:

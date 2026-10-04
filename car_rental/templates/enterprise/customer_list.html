@@ -1,10 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Customer Directory — Enterprise{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--enterprise" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 1000px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <a href="{{ url_for('enterprise.dashboard') }}" style="color: var(--enterprise-accent-soft); display: inline-block; margin-bottom: 1rem;">← Back to Dashboard</a>
+
+    <h1 style="color: var(--enterprise-accent); margin-bottom: 1.5rem;">Customer Directory</h1>
+
+    <!-- Filters -->
+    <form method="GET" action="{{ url_for('enterprise.customer_list') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+      <div>
+        <label style="display: block; font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.2rem;">Location Branch</label>
+        <select name="location" style="padding: 0.5rem; border-radius: 6px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+          <option value="">All Locations</option>
+          {% for loc in locations %}
+            <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.2rem;">Search (Name / Email)</label>
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Type name or email..." style="padding: 0.45rem; border-radius: 6px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+      </div>
+
+      <div style="align-self: flex-end;">
+        <button type="submit" style="background: var(--enterprise-accent-soft); color: white; border: none; padding: 0.55rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer;">Search</button>
+        <a href="{{ url_for('enterprise.customer_list') }}" style="margin-left: 0.5rem; color: var(--enterprise-ink); opacity: 0.7; font-size: 0.9rem;">Reset</a>
+      </div>
+    </form>
+
+    <div style="overflow-x: auto; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+      <table style="width: 100%; border-collapse: collapse; font-family: var(--font-ui);">
+        <thead>
+          <tr style="border-bottom: 2px solid rgba(255,255,255,0.1); text-align: left; background: rgba(255,255,255,0.02);">
+            <th style="padding: 0.75rem;">ID</th>
+            <th style="padding: 0.75rem;">Full Name</th>
+            <th style="padding: 0.75rem;">Email</th>
+            <th style="padding: 0.75rem;">Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if customers %}
+            {% for c in customers %}
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 0.75rem; font-weight: 600;">#{{ c.id }}</td>
+                <td style="padding: 0.75rem;">{{ c.name }} {{ c.surname }}</td>
+                <td style="padding: 0.75rem;">{{ c.email }}</td>
+                <td style="padding: 0.75rem;">{{ c.location|capitalize }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="4" style="padding: 1.5rem; text-align: center; opacity: 0.7;">No customers match the query.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

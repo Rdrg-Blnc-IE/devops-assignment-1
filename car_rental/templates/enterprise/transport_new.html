@@ -1,10 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Request Transport — Enterprise{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--enterprise" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 600px; width: 100%; margin: 0 auto; text-align: left;">
+
+    <a href="{{ url_for('enterprise.dashboard') }}" style="color: var(--enterprise-accent-soft); display: inline-block; margin-bottom: 1rem;">← Back to Dashboard</a>
+
+    <div style="background: rgba(255,255,255,0.05); border-radius: 16px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1);">
+      <h1 style="color: var(--enterprise-accent); margin-top: 0;">Dispatch Fleet Vehicle</h1>
+      <p style="margin-bottom: 1.5rem; opacity: 0.8;">Enqueue a vehicle into truck or ship logistics batches to transfer between branches.</p>
+
+      <form method="POST" action="{{ url_for('enterprise.transport_new') }}" style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Select Vehicle</label>
+          <select name="reg_num" required style="width: 100%; padding: 0.75rem; border-radius: 8px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+            <option value="" disabled selected>Choose active vehicle...</option>
+            {% for v in vehicles %}
+              <option value="{{ v.reg_num }}">{{ v.brand }} {{ v.model }} (Currently at {{ v.location|capitalize }}) - Reg: {{ v.reg_num }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 0.3rem;">Final Destination</label>
+          <select name="destination" required style="width: 100%; padding: 0.75rem; border-radius: 8px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+            <option value="" disabled selected>Select destination branch...</option>
+            {% for loc in locations %}
+              <option value="{{ loc }}">{{ loc|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" style="background: var(--enterprise-accent); color: var(--enterprise-bg); padding: 0.85rem; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 0.5rem;">
+          Add to Logistics Queue
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

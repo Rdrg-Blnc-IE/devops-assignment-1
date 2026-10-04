@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Available Vehicles — Ruta7{% endblock %}
+
+{% block content %}
+<main class="placeholder" style="justify-content: flex-start; padding: 3rem 1.5rem; background: #f8f9fa;">
+  <div style="max-width: 1100px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h1 style="color: var(--customer-accent); margin: 0;">Step 1: Select Your Vehicle</h1>
+        <p style="color: #666; margin-top: 0.25rem;">Filter and compare available vehicles for rent</p>
+      </div>
+      <a href="{{ url_for('customer.dashboard') }}" style="color: #666; text-decoration: none;">← My Dashboard</a>
+    </div>
+
+    <!-- Filters & Ordering -->
+    <form method="GET" action="{{ url_for('customer.browse_vehicles') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 0.2rem;">Location</label>
+        <select name="location" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; background: white;">
+          <option value="">All Locations</option>
+          {% for loc in locations %}
+            <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 0.2rem;">Category Tier</label>
+        <select name="category" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; background: white;">
+          <option value="">All Tiers</option>
+          {% for c in categories %}
+            <option value="{{ c }}" {% if selected_category == c %}selected{% endif %}>{{ c|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 0.2rem;">Body Type</label>
+        <select name="type" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; background: white;">
+          <option value="">All Types</option>
+          {% for t in types %}
+            <option value="{{ t }}" {% if selected_type == t %}selected{% endif %}>{{ t|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 0.2rem;">Fuel</label>
+        <select name="fuel" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; background: white;">
+          <option value="">All Fuels</option>
+          {% for f in fuels %}
+            <option value="{{ f }}" {% if selected_fuel == f %}selected{% endif %}>{{ f|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 0.2rem;">Order By</label>
+        <select name="sort_by" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; background: white;">
+          <option value="">Default</option>
+          <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+        </select>
+      </div>
+
+      <div style="align-self: flex-end;">
+        <button type="submit" style="background: var(--customer-accent); color: white; border: none; padding: 0.55rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer;">Apply Filters</button>
+      </div>
+    </form>
+
+    <!-- Vehicle Cards Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+      {% if vehicles %}
+        {% for v in vehicles %}
+          <div style="background: white; border-radius: 12px; border: 1px solid #eee; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                <h3 style="margin: 0; color: #333; font-size: 1.25rem;">{{ v.brand }} {{ v.model }}</h3>
+                <span style="background: #eef2ff; color: var(--customer-accent); font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 6px;">{{ v.category|upper }}</span>
+              </div>
+              <p style="color: #666; font-size: 0.9rem; margin: 0 0 1rem;">📍 Current City: <strong>{{ v.location|capitalize }}</strong></p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem; color: #555; background: #fafafa; padding: 0.75rem; border-radius: 8px; margin-bottom: 1.25rem;">
+                <div>🚘 <strong>Type:</strong> {{ v.type|capitalize }}</div>
+                <div>⛽ <strong>Fuel:</strong> {{ v.fuel|capitalize }}</div>
+                <div>⚙️ <strong>Trans:</strong> {{ v.transmission|capitalize }}</div>
+                <div>💺 <strong>Seats:</strong> {{ v.seat_num }}</div>
+                <div>🎨 <strong>Color:</strong> {{ v.color or 'N/A' }}</div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 1rem;">
+              <div>
+                <span style="font-size: 1.4rem; font-weight: 800; color: var(--customer-accent);">${{ "%.2f"|format(v.daily_rate) }}</span>
+                <span style="font-size: 0.8rem; color: #888;">/ day</span>
+              </div>
+              <a href="{{ url_for('customer.new_rental', reg_num=v.reg_num) }}" style="background: var(--customer-accent); color: white; padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                Select Dates →
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="grid-column: 1/-1; color: #666; text-align: center; padding: 2rem;">No vehicles available matching your filters.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</main>
+{% endblock %}

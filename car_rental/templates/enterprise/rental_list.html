@@ -1,10 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}All Contracts — Enterprise{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--enterprise" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 1000px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <a href="{{ url_for('enterprise.dashboard') }}" style="color: var(--enterprise-accent-soft); display: inline-block; margin-bottom: 1rem;">← Back to Dashboard</a>
+
+    <h1 style="color: var(--enterprise-accent); margin-bottom: 1.5rem;">Customer Rental Contracts</h1>
+
+    <!-- Filters -->
+    <form method="GET" action="{{ url_for('enterprise.rental_list') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+      <div>
+        <label style="display: block; font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.2rem;">Status</label>
+        <select name="status" style="padding: 0.5rem; border-radius: 6px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+          <option value="">All Statuses</option>
+          <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+          <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="returned" {% if selected_status == 'returned' %}selected{% endif %}>Returned</option>
+          <option value="canceled" {% if selected_status == 'canceled' %}selected{% endif %}>Canceled</option>
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.2rem;">Customer ID</label>
+        <input type="text" name="customer_id" value="{{ selected_customer_id }}" placeholder="e.g. 1" style="padding: 0.45rem; border-radius: 6px; background: var(--enterprise-bg); color: var(--enterprise-ink); border: 1px solid rgba(255,255,255,0.2);">
+      </div>
+
+      <div style="align-self: flex-end;">
+        <button type="submit" style="background: var(--enterprise-accent-soft); color: white; border: none; padding: 0.55rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer;">Filter</button>
+        <a href="{{ url_for('enterprise.rental_list') }}" style="margin-left: 0.5rem; color: var(--enterprise-ink); opacity: 0.7; font-size: 0.9rem;">Reset</a>
+      </div>
+    </form>
+
+    <div style="overflow-x: auto; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+      <table style="width: 100%; border-collapse: collapse; font-family: var(--font-ui);">
+        <thead>
+          <tr style="border-bottom: 2px solid rgba(255,255,255,0.1); text-align: left; background: rgba(255,255,255,0.02);">
+            <th style="padding: 0.75rem;">Rental ID</th>
+            <th style="padding: 0.75rem;">Customer ID</th>
+            <th style="padding: 0.75rem;">Car Reg Num</th>
+            <th style="padding: 0.75rem;">Dates</th>
+            <th style="padding: 0.75rem;">Total Price</th>
+            <th style="padding: 0.75rem;">Status</th>
+            <th style="padding: 0.75rem; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if rentals %}
+            {% for r in rentals %}
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 0.75rem; font-weight: 600;">#{{ r.id }}</td>
+                <td style="padding: 0.75rem;">Customer {{ r.customer_id }}</td>
+                <td style="padding: 0.75rem; font-family: monospace;">{{ r.car_reg_num }}</td>
+                <td style="padding: 0.75rem;">{{ r.start_date }} to {{ r.end_date }}</td>
+                <td style="padding: 0.75rem;">${{ "%.2f"|format(r.total_price) }}</td>
+                <td style="padding: 0.75rem;">
+                  <span style="padding: 0.2rem 0.6rem; border-radius: 10px; font-size: 0.8rem; background: {{ '#2E8C85' if r.status == 'active' else '#555' }}; color: white;">
+                    {{ r.status|capitalize }}
+                  </span>
+                </td>
+                <td style="padding: 0.75rem; text-align: right;">
+                  <a href="{{ url_for('enterprise.rental_detail', rental_id=r.id) }}" style="color: var(--enterprise-accent); font-weight: 600;">Edit →</a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="7" style="padding: 1.5rem; text-align: center; opacity: 0.7;">No rentals match the filters.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

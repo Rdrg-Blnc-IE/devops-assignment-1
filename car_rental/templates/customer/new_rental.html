@@ -1,55 +1,64 @@
 {% extends "base.html" %}
 
-{% block title %}Rent a Vehicle — Ruta7{% endblock %}
+{% block title %}Book {{ vehicle.brand }} {{ vehicle.model }} — Ruta7{% endblock %}
 
 {% block content %}
-<main class="placeholder placeholder--customer" style="justify-content: flex-start; padding: 3rem 1.5rem;">
-  <div style="max-width: 650px; width: 100%; margin: 0 auto; text-align: left;">
-    
-    <a href="{{ url_for('customer.dashboard') }}" style="display: inline-block; margin-bottom: 1rem; color: var(--customer-ink);">← Back to Dashboard</a>
+<main class="placeholder" style="justify-content: flex-start; padding: 3rem 1.5rem; background: #f8f9fa;">
+  <div style="max-width: 800px; width: 100%; margin: 0 auto; text-align: left;">
 
-    <div style="background: rgba(255,255,255,0.7); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
-      <h1 style="color: var(--customer-accent); margin-top: 0; margin-bottom: 0.5rem;">Rent a Vehicle</h1>
-      <p style="margin-bottom: 1.5rem;">Choose an available vehicle and set your rental dates.</p>
+    <a href="{{ url_for('customer.browse_vehicles') }}" style="color: #666; display: inline-block; margin-bottom: 1rem; text-decoration: none;">← Step 1: Change Vehicle Selection</a>
 
-      <form method="POST" action="{{ url_for('customer.new_rental') }}" style="display: flex; flex-direction: column; gap: 1.25rem;">
-        
-        <div>
-          <label for="vehicle_id" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Select Vehicle</label>
-          <select id="vehicle_id" name="vehicle_id" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; background: white;">
-            <option value="" disabled selected>Choose a vehicle...</option>
-            {% if available_vehicles %}
-              {% for vehicle in available_vehicles %}
-                <option value="{{ vehicle.id }}">
-                  {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.location or 'Main Branch' }}) - ${{ vehicle.daily_rate }}/day
-                </option>
-              {% endfor %}
-            {% else %}
-              <option value="" disabled>No vehicles currently available</option>
-            {% endif %}
-          </select>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+
+      <!-- Left Column: Detailed Vehicle Specs -->
+      <div>
+        <h2 style="color: var(--customer-accent); margin-top: 0; font-size: 1.5rem;">{{ vehicle.brand }} {{ vehicle.model }}</h2>
+        <p style="color: #777; font-size: 0.85rem; font-family: monospace;">Reg: {{ vehicle.reg_num }}</p>
+
+        <div style="background: #fdfdfd; border: 1px solid #eaeaea; border-radius: 10px; padding: 1.25rem; margin-top: 1rem;">
+          <h4 style="margin-top: 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Vehicle Specifications</h4>
+          <ul style="list-style-type: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.8; color: #555;">
+            <li>📍 <strong>Pickup Location:</strong> {{ vehicle.location|capitalize }}</li>
+            <li>🏷️ <strong>Category Tier:</strong> {{ vehicle.category|capitalize }}</li>
+            <li>🚘 <strong>Type:</strong> {{ vehicle.type|capitalize }}</li>
+            <li>⛽ <strong>Fuel:</strong> {{ vehicle.fuel|capitalize }}</li>
+            <li>⚙️️ <strong>Transmission:</strong> {{ vehicle.transmission|capitalize }}</li>
+            <li>💺 <strong>Seats:</strong> {{ vehicle.seat_num }}</li>
+            <li>🎨 <strong>Color:</strong> {{ vehicle.color or 'N/A' }}</li>
+            <li>🛣️ <strong>Mileage:</strong> {{ vehicle.km }} KM</li>
+            <li>💰 <strong>Daily Rate:</strong> ${{ "%.2f"|format(vehicle.daily_rate) }} / day</li>
+          </ul>
         </div>
+      </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <!-- Right Column: Date Selection -->
+      <div>
+        <h3 style="margin-top: 0; color: #333;">Step 2: Reserve Dates</h3>
+        <p style="font-size: 0.85rem; color: #666;">Vehicle must be picked up and returned at <strong>{{ vehicle.location|capitalize }}</strong>.</p>
+
+        <form method="POST" action="{{ url_for('customer.new_rental', reg_num=vehicle.reg_num) }}" style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem;">
+
           <div>
-            <label for="start_date" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Start Date</label>
-            <input type="date" id="start_date" name="start_date" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 0.3rem;">Pickup Location</label>
+            <input type="text" value="{{ vehicle.location|capitalize }}" disabled style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ddd; background: #f0f0f0; color: #555; font-weight: 600;">
           </div>
+
           <div>
-            <label for="end_date" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">End Date</label>
-            <input type="date" id="end_date" name="end_date" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 0.3rem;">Start Date</label>
+            <input type="date" name="start_date" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc;">
           </div>
-        </div>
 
-        <div>
-          <label for="pickup_location" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Pickup Location</label>
-          <input type="text" id="pickup_location" name="pickup_location" placeholder="e.g. Airport Terminal 1 / City Center" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
-        </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 0.3rem;">End Date</label>
+            <input type="date" name="end_date" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc;">
+          </div>
 
-        <button type="submit" style="background: var(--customer-accent); color: white; padding: 0.85rem; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s;">
-          Confirm & Reserve Vehicle
-        </button>
-      </form>
+          <button type="submit" style="background: var(--customer-accent); color: white; padding: 0.85rem; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 0.5rem;">
+            Confirm Reservation
+          </button>
+        </form>
+      </div>
+
     </div>
 
   </div>

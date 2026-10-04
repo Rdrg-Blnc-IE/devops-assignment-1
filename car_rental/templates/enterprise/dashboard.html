@@ -1,10 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Enterprise Dashboard — Ruta7{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--enterprise" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 1000px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+      <div>
+        <h1 style="color: var(--enterprise-accent); margin: 0;">Vehicle Management Center</h1>
+        <p style="opacity: 0.8; margin-top: 0.25rem;">Enterprise Control Panel & Analytics</p>
+      </div>
+      <a href="{{ url_for('index') }}" style="color: var(--enterprise-accent-soft); font-weight: 500;">← Exit Enterprise Mode</a>
+    </div>
+
+    <!-- Quick Stats Overview -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+      <div style="background: rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <span style="font-size: 0.85rem; opacity: 0.7;">Total Vehicles</span>
+        <h2 style="font-size: 2rem; margin: 0.25rem 0 0; color: var(--enterprise-accent);">{{ total_vehicles }}</h2>
+      </div>
+      <div style="background: rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <span style="font-size: 0.85rem; opacity: 0.7;">Available Vehicles</span>
+        <h2 style="font-size: 2rem; margin: 0.25rem 0 0; color: #4EBA6F;">{{ available_vehicles }}</h2>
+      </div>
+      <div style="background: rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <span style="font-size: 0.85rem; opacity: 0.7;">Active Rentals</span>
+        <h2 style="font-size: 2rem; margin: 0.25rem 0 0; color: #5BC0BE;">{{ active_rentals }}</h2>
+      </div>
+      <div style="background: rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <span style="font-size: 0.85rem; opacity: 0.7;">Pending Transport Queues</span>
+        <h2 style="font-size: 2rem; margin: 0.25rem 0 0; color: #E06D53;">{{ pending_trips_count }}</h2>
+      </div>
+    </div>
+
+    <!-- Main Navigation Actions -->
+    <h3 style="color: var(--enterprise-accent); margin-bottom: 1rem;">Operations & Management</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+      
+      <a href="{{ url_for('enterprise.vehicle_list') }}" style="background: rgba(255,255,255,0.04); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.2s;">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--enterprise-accent);">📋 Vehicle Directory</h4>
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">Filter, inspect, and update all registered vehicles across cities.</p>
+      </a>
+
+      <a href="{{ url_for('enterprise.vehicle_new') }}" style="background: rgba(255,255,255,0.04); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--enterprise-accent);">➕ Add New Vehicle</h4>
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">Register a new car, SUV, or van into company operations.</p>
+      </a>
+
+      <a href="{{ url_for('enterprise.transport_new') }}" style="background: rgba(255,255,255,0.04); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--enterprise-accent);">🚚 Transport Vehicle</h4>
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">Dispatch vehicles across mainland cities or islands via truck or ship.</p>
+      </a>
+
+      <a href="{{ url_for('enterprise.transport_queue') }}" style="background: rgba(255,255,255,0.04); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--enterprise-accent);">🔄 Transport Queue Status</h4>
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">Monitor active batch queues and minimum vehicle thresholds for departure.</p>
+      </a>
+
+      <a href="{{ url_for('enterprise.rental_list') }}" style="background: rgba(255,255,255,0.04); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--enterprise-accent);">🔑 All Rental Contracts</h4>
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">View and modify customer rental statuses and reservation details.</p>
+      </a>
+
+      <a href="{{ url_for('enterprise.customer_list') }}" style="background: rgba(255,255,255,0.04); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.2rem; color: var(--enterprise-accent);">👥 Customer Records</h4>
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">Browse customer contacts and filter by regional branches.</p>
+      </a>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}

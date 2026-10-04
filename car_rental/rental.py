@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import date
 from .database import db_instance as db
 from .vehicle_info import StrValueEnum
@@ -21,8 +21,14 @@ class Rental:
     total_price: float  # e.g. 199.95
     status: RentalStatus  # RentalStatus.pending
 
-def save(rental):
-        db.save_reservation(rental)
+def save(rental: Rental):
+    data = asdict(rental)
+    for k, val in data.items():
+        if hasattr(val, 'value'):
+            data[k] = val.value
+        elif isinstance(val, date):
+            data[k] = val.isoformat()
+    db.save_vehicle(data)
 
 def update(rental_id: int, parameters: dict):
         if rental_id:

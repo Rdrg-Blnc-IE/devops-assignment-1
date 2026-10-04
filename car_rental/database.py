@@ -67,17 +67,25 @@ class DB:
     # Reservations — by id
 
     def save_reservation(self, data: dict[str, Any]) -> None:
-        self._save("reservations", data)
+        self._save("rentals", data)
 
     def load_reservations(self, parameters: Optional[dict[str, Any]] = None) -> list[dict]:
-        return self._load("reservations", parameters)
+        return self._load("rentals", parameters)
 
     def update_reservation(self, reservation_id: int, parameters: dict[str, Any]) -> None:
-        self._update("reservations", reservation_id, parameters, key_column="id")
+        self._update("rentals", reservation_id, parameters, key_column="id")
 
     def delete_reservation(self, reservation_id: int) -> None:
-        # soft-delete: mark the reservation as canceled rather than deleting the row
-        self.update_reservation(reservation_id, {"status": "canceled"})
+        self._update("rentals", reservation_id, {"status": "canceled"}, key_column="id")
+
+    # Customers — by id
+
+    def load_customers(self, parameters: Optional[dict[str, Any]] = None) -> list[dict]:
+        return self._load("customers", parameters)
+
+    def get_customer_by_id(self, customer_id: int) -> Optional[dict]:
+        res = self._load("customers", {"id": customer_id})
+        return res[0] if res else None
 
     def close(self) -> None:
         self.conn.close()

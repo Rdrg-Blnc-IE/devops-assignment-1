@@ -1,10 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Transport Queue — Enterprise{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--enterprise" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 800px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <a href="{{ url_for('enterprise.dashboard') }}" style="color: var(--enterprise-accent-soft); display: inline-block; margin-bottom: 1rem;">← Back to Dashboard</a>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h1 style="color: var(--enterprise-accent); margin: 0;">Logistics & Transport Queues</h1>
+      <a href="{{ url_for('enterprise.transport_new') }}" style="background: var(--enterprise-accent); color: var(--enterprise-bg); padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700;">+ Dispatch Vehicle</a>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08);">
+      <h3 style="margin-top: 0; color: var(--enterprise-accent);">Active Batches</h3>
+
+      {% if pending_trips %}
+        <ul style="list-style-type: none; padding: 0; margin: 1rem 0 0;">
+          {% for trip in pending_trips %}
+            <li style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 0.75rem; font-family: var(--font-ui); display: flex; justify-content: space-between; align-items: center;">
+              <span>{{ trip }}</span>
+              <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; border-radius: 10px; background: rgba(232,163,61,0.2); color: var(--enterprise-accent);">Queued</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p style="opacity: 0.7; margin: 0;">No pending trips in the queue. All vehicles are currently at their designated locations.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</main>
+{% endblock %}
