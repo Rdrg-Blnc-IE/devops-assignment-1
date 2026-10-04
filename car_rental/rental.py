@@ -21,10 +21,10 @@ class Rental:
     total_price: float  # e.g. 199.95
     status: RentalStatus  # RentalStatus.pending
 
-    def save(self, rental):
+def save(rental):
         DB.save_reservation(rental)
 
-    def update(self, rental_id: int, parameters: dict):
+def update(rental_id: int, parameters: dict):
         if rental_id:
             DB.update_reservation(rental_id, parameters)
         else:
@@ -95,5 +95,5 @@ class RentalBuilder:
             status=self.status or RentalStatus.pending,
         )
 
-        r.save()
+        save(r)
         return r

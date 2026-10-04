@@ -67,10 +67,10 @@ class Vehicle:
     category: RentalTier  # RentalTier.economy
     color: Optional[str] = None  # Silver
 
-    def save(self, vehicle):
+def save(vehicle):
         DB.save_vehicle(vehicle)
 
-    def update(self, reg_num: str, parameters: dict):
+def update(reg_num: str, parameters: dict):
         if reg_num:
             DB.update_vehicle(reg_num, parameters)
         else:
@@ -224,5 +224,5 @@ class VehicleBuilder:
             color=self.color,
         )
 
-        v.save()
+        save(v)
         return v
