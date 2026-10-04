@@ -1,0 +1,208 @@
+:root {
+  /* Customer palette — warm, leisure, road-trip */
+  --customer-bg: #F6ECD9;
+  --customer-ink: #2E1B14;
+  --customer-accent: #7A2E3B;
+  --customer-accent-soft: #C96E7A;
+
+  /* Enterprise palette — navy/graphite, fleet operations */
+  --enterprise-bg: #121826;
+  --enterprise-ink: #EDEFF3;
+  --enterprise-accent: #E8A33D;
+  --enterprise-accent-soft: #2E8C85;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  background: var(--customer-bg);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------- */
+/* Landing page: diagonal split                                     */
+/* ---------------------------------------------------------------- */
+
+.split {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.brand {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  color: var(--enterprise-ink);
+  background: var(--enterprise-bg);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+}
+
+.half {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.half--customer {
+  background: var(--customer-bg);
+  color: var(--customer-ink);
+  clip-path: polygon(0 0, 62% 0, 38% 100%, 0 100%);
+  justify-content: flex-start;
+  padding-left: 8vw;
+}
+
+.half--enterprise {
+  background: var(--enterprise-bg);
+  color: var(--enterprise-ink);
+  clip-path: polygon(62% 0, 100% 0, 100% 100%, 38% 100%);
+  justify-content: flex-end;
+  padding-right: 8vw;
+}
+
+.tile {
+  max-width: 22rem;
+}
+
+.half--enterprise .tile {
+  text-align: right;
+  margin-left: auto;
+}
+
+.tile__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1;
+  margin: 0 0 0.75rem;
+}
+
+.half--customer .tile__title {
+  color: var(--customer-accent);
+}
+
+.half--enterprise .tile__title {
+  color: var(--enterprise-accent);
+}
+
+.tile__subtitle {
+  font-size: 1.05rem;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.half {
+  transition: filter 0.2s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .half:hover,
+  .half:focus-visible {
+    filter: brightness(1.06);
+  }
+
+  .half:hover .tile,
+  .half:focus-visible .tile {
+    transition: transform 0.2s ease;
+    transform: translateY(-2px);
+  }
+}
+
+.half:focus-visible {
+  outline: 3px solid var(--enterprise-accent-soft);
+  outline-offset: -6px;
+}
+
+/* stack vertically on narrow screens — a diagonal split doesn't
+   survive a phone-width viewport */
+@media (max-width: 700px) {
+  .split {
+    min-height: auto;
+  }
+
+  .half {
+    position: static;
+    clip-path: none;
+    min-height: 50vh;
+    padding: 3rem 1.5rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .half--enterprise .tile {
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .brand {
+    position: static;
+    display: block;
+    width: fit-content;
+    margin: 1.5rem auto;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Temporary placeholders                                           */
+/* ---------------------------------------------------------------- */
+
+.placeholder {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  text-align: center;
+}
+
+.placeholder--customer {
+  background: var(--customer-bg);
+  color: var(--customer-ink);
+}
+
+.placeholder--enterprise {
+  background: var(--enterprise-bg);
+  color: var(--enterprise-ink);
+}
+
+.placeholder h1 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.placeholder p {
+  font-family: var(--font-ui);
+  opacity: 0.75;
+  margin: 0;
+}
+
+.placeholder__back {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+}

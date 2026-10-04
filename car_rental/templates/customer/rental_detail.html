@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Rental #{{ rental.id if rental else 'Details' }} — Ruta7{% endblock %}
+
+{% block content %}
+<main class="placeholder placeholder--customer" style="justify-content: flex-start; padding: 3rem 1.5rem;">
+  <div style="max-width: 650px; width: 100%; margin: 0 auto; text-align: left;">
+    
+    <a href="{{ url_for('customer.dashboard') }}" style="display: inline-block; margin-bottom: 1rem; color: var(--customer-ink);">← Back to Dashboard</a>
+
+    <div style="background: rgba(255,255,255,0.7); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h1 style="color: var(--customer-accent); margin: 0;">Rental #{{ rental.id if rental else 'R-101' }}</h1>
+        <span style="padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; background: var(--customer-accent-soft); color: white;">
+          {{ rental.status|capitalize if rental else 'Active' }}
+        </span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 8px;">
+        <div>
+          <span style="display: block; font-size: 0.85rem; opacity: 0.7;">Vehicle:</span>
+          <strong>{{ rental.vehicle_name or rental.vehicle_id if rental else 'SUV - Toyota RAV4' }}</strong>
+        </div>
+        <div>
+          <span style="display: block; font-size: 0.85rem; opacity: 0.7;">Pickup Location:</span>
+          <strong>{{ rental.pickup_location if rental else 'Madrid Central' }}</strong>
+        </div>
+      </div>
+
+      <h3 style="color: var(--customer-accent); margin-bottom: 0.75rem;">Update Rental Details</h3>
+      
+      <form method="POST" action="{{ url_for('customer.rental_detail', rental_id=rental.id) if rental else '#' }}" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        
+        <div>
+          <label for="end_date" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Return / End Date</label>
+          <input type="date" id="end_date" name="end_date" value="{{ rental.end_date if rental else '' }}" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+        </div>
+
+        <div>
+          <label for="return_location" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Return Location</label>
+          <input type="text" id="return_location" name="return_location" value="{{ rental.return_location if rental else '' }}" placeholder="e.g. Barcelona Station" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+        </div>
+
+        <div>
+          <label for="notes" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">Notes / Special Instructions</label>
+          <textarea id="notes" name="notes" rows="3" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; font-family: var(--font-ui);">{{ rental.notes if rental else '' }}</textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+          <button type="submit" style="flex: 1; background: var(--customer-accent); color: white; padding: 0.85rem; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer;">
+            Update Rental
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}

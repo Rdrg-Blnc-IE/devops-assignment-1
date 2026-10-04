@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+ 
+{% block title %}Ruta7 — Choose how you're using the fleet{% endblock %}
+ 
+{% block content %}
+<main class="split">
+  <span class="brand">Ruta7</span>
+ 
+  <a class="half half--customer" href="{{ url_for('customer.login') }}">
+    <div class="tile">
+      <h1 class="tile__title">Customers</h1>
+      <p class="tile__subtitle">Pick up a car, manage your rentals</p>
+    </div>
+  </a>
+ 
+  <a class="half half--enterprise" href="{{ url_for('enterprise.dashboard') }}">
+    <div class="tile">
+      <h1 class="tile__title">Enterprise</h1>
+      <p class="tile__subtitle">Run the fleet across every city</p>
+    </div>
+  </a>
+ 
+</main>
+{% endblock %}

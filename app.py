@@ -1,11 +1,6 @@
-from car_rental.vehicle_info import VehicleBuilder
+from car_rental import create_app
 
-def main():
-
-    # TODO: execute html webapp
-
-    # TODO: connect the different services together
-    pass
+app = create_app()
 
 if __name__ == "__main__":
-    main()
+    app.run(host=app.config["HOST"], port=app.config["PORT"], debug=True)
